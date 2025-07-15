@@ -84,7 +84,7 @@ class CVRPSolutionVehicle:
     @property
     def circuit(self) -> List[Point]:
         return (
-            [self.origin] + [d.point for d in self.deliveries] + [self.origin]
+            [self.origin] + [d.point for d in self.deliveries]
         )
 
     @property
@@ -101,16 +101,3 @@ class CVRPSolution(JSONDataclassMixin):
     def deliveries(self):
         return [d for v in self.vehicles for d in v.deliveries]
 
-
-@dataclass
-class LoadingUnitModel:
-    capacity: int
-    deliveries: List[Delivery]
-
-    @classmethod
-    def get_baseline(cls):
-        return cls(
-            capacity= 0,
-            deliveries= []
-        )
-    

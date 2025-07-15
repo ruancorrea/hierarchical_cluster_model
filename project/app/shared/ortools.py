@@ -23,9 +23,6 @@ from app.distances import (
     OSRMConfig
 )
 
-
-
-
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -38,7 +35,7 @@ class ORToolsParams(JSONDataclassMixin):
     )
     max_vehicles: Optional[int] = None
     solution_limit: Optional[int] = None
-    time_limit_ms: Optional[int] = 60_000
+    time_limit_ms: Optional[int] = 700_000
 
     osrm_config: Optional[OSRMConfig] = None
     """Config for calling OSRM distance service."""
