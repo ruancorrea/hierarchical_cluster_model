@@ -29,7 +29,7 @@ The goal is to partition delivery demands into hierarchical clusters, efficientl
 - `app/hcm_offline.py`: Implements the offline phase for clustering and unit load allocation.
 - `app/hcm_online.py`: Implements the online phase for routing and dynamic delivery allocation.
 - `app/types.py`: Defines data structures (instances, deliveries, solutions).
-- `app/solution/`: Example solution files generated (JSON format).
+- `app/solutions/`: Example solution files generated (JSON format).
 - `shared/ortools.py`: Integration with OR-Tools for solving routing subproblems.
 - `eval.py`, `distances.py`, `utils.py`: Utilities and helper functions.
 
