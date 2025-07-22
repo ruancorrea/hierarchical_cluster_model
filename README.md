@@ -18,9 +18,6 @@ This project addresses the last-mile ICVRP by leveraging hierarchical clustering
 
 This project implements a hierarchical clustering-based approach to solve the Capacitated Vehicle Routing Problem (CVRP). The proposed solution is based on the paper:
 
-**"A Hierarchical Clustering-Based Approach for the ICVRP"**  
-*(PDF included in the repository)*
-
 The goal is to partition delivery demands into hierarchical clusters, efficiently allocate unit loads, and then solve routing subproblems for each cluster, optimizing vehicle usage and minimizing the total distance traveled.
 
 ## Project Structure
