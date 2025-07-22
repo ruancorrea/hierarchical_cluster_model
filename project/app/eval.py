@@ -11,6 +11,7 @@ def evaluate_solution(
     solution: CVRPSolution,
     config: Optional[OSRMConfig] = None,
 ) -> float:
+    """Evaluate a solution against an instance."""
 
     # Check if all demands are present.
     solution_demands = set(d for v in solution.vehicles for d in v.deliveries)
@@ -36,6 +37,8 @@ def evaluate_solution(
 
 
 if __name__ == "__main__":
+    """Main function to evaluate solutions against instances."""
+
     parser = ArgumentParser()
 
     parser.add_argument("--instances", type=str, required=True)

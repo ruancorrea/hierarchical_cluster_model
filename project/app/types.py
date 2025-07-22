@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict
 from typing import (
-    List, 
+    List,
     Union
 )
 from dacite import from_dict
@@ -100,4 +100,3 @@ class CVRPSolution(JSONDataclassMixin):
     @property
     def deliveries(self):
         return [d for v in self.vehicles for d in v.deliveries]
-

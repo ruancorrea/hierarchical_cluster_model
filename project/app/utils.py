@@ -1,10 +1,11 @@
 from app.types import (
     CVRPInstance,
-    JSONDataclassMixin, 
+    JSONDataclassMixin,
     Delivery,
     CVRPSolution,
     CVRPSolutionVehicle
 )
+import json
 
 def json_read(path: str) -> dict:
     try:
@@ -15,7 +16,7 @@ def json_read(path: str) -> dict:
         return None
 
 def create_CVRPInstance(instance, deliveries: list[Delivery], factor=3) -> CVRPInstance:
-    """ Creating an instanceCVRP with deliveries. """
+    """Creating an instanceCVRP with deliveries. """
 
     return CVRPInstance(
         name = instance.name,

@@ -19,6 +19,7 @@ class OSRMConfig:
 def calculate_distance_matrix_m(
     points: Iterable[Point], config: Optional[OSRMConfig] = None
 ):
+    """Calculate the distance matrix in meters using OSRM."""
     config = config or OSRMConfig()
 
     if len(points) < 2:
@@ -40,11 +41,12 @@ def calculate_distance_matrix_m(
 
 # Função OSRM modificada
 def calculate_distance_sub_matrix(
-    coords_list: List[Point],  # Lista de pontos únicos para esta chamada OSRM
-    source_indices: List[int], # Índices (em coords_list) para as origens
-    dest_indices: List[int],   # Índices (em coords_list) para os destinos
+    coords_list: List[Point],
+    source_indices: List[int],
+    dest_indices: List[int],
     config: Optional[OSRMConfig] = None,
 ):
+    """Calculate a sub-matrix of distances between specified source and destination indices."""
     config = config or OSRMConfig()
 
     if not coords_list:
@@ -62,20 +64,20 @@ def calculate_distance_sub_matrix(
         f"{config.host}/table/v1/driving/{coords_uri}"
         f"?annotations=distance&sources={sources_uri}&destinations={destinations_uri}"
     )
-    
+
     # print(f"  OSRM Request URL (first few chars): {request_url[:150]}...")
     # print(f"  Coords: {len(coords_list)}, Sources: {len(source_indices)}, Dests: {len(dest_indices)}")
 
     response = requests.get(request_url, timeout=config.timeout_s)
     response.raise_for_status()
-    
-    # A resposta["distances"] será uma matriz len(source_indices) x len(dest_indices)
+
     return np.array(response.json()["distances"])
 
 
 def calculate_route_distance_m(
     points: Iterable[Point], config: Optional[OSRMConfig] = None
 ):
+    """Calculate the total distance of a route defined by a list of points."""
     config = config or OSRMConfig()
 
     if len(points) < 2:
@@ -168,7 +170,7 @@ def calculate_route_distance_great_circle_m(points: Iterable[Point]) -> float:
     return distance_matrix[point_indices[:-1], point_indices[1:]].sum()
 
 def get_nearest_road(point: Point, config: Optional[OSRMConfig] = None, number: Optional[int] = 1):
-    """Encontra a rua mais próxima a um ponto (lat, lon) usando OSRM Nearest."""
+    """Get the nearest road point using OSRM."""
     config = config or OSRMConfig()
 
     response = requests.get(
@@ -177,11 +179,10 @@ def get_nearest_road(point: Point, config: Optional[OSRMConfig] = None, number: 
     )
     response.raise_for_status()
     response = response.json()
-    
+
     if 'waypoints' in response and response['waypoints']:
         locations = np.array([ w['location'] for w in response['waypoints'] ])[0]
         point = Point(lng=locations[0], lat=locations[1])
-        return point  
-    
-    
+        return point
+
     return None

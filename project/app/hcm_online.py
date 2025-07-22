@@ -17,16 +17,18 @@ import numpy as np
 
 class HCM_ONLINE:
     def __init__(
-        self, 
-        n_unit_loads: int, 
-        data: CVRPInstance, 
-        clustering: KMeans, 
-        subclusterings: dict, 
+        self,
+        n_unit_loads: int,
+        data: CVRPInstance,
+        clustering: KMeans,
+        subclusterings: dict,
         alpha_criteria: float,
         beta_distance: float,
         distribution_unit_loads: list,
         time_limit_ms_tsp: int= 1_000
     ):
+        """Initialize the HCM_ONLINE class with the provided parameters.
+        This class is responsible for solving the CVRP problem using the Hierarchical Cluster Model (HCM)."""
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.n_unit_loads=n_unit_loads
@@ -44,8 +46,10 @@ class HCM_ONLINE:
         self.routes = list()
 
     def define_unit_load_of_package(self, current_point: list, unit_loads: dict):
-
+        """Define the unit load of a package based on its location.
+        This function finds the nearest unit load based on the distance to the package's location."""
         def calculate_distance(point_A, point_B):
+            """Calculate the Euclidean distance between two points."""
             return np.sqrt(np.sum((point_A - point_B) ** 2))
 
         min_distance=np.inf
@@ -62,7 +66,7 @@ class HCM_ONLINE:
             if min_distance > distance:
                 min_distance=distance
                 unit_load_min_distance=unit_load
-        
+
         if min_distance > self.beta_distance:
             cluster=self.clustering.predict([current_point])[0]
             index=0
@@ -70,11 +74,11 @@ class HCM_ONLINE:
                 sub_cluster=self.subclusterings[cluster].predict([current_point])[0]
                 index=sub_cluster
             unit_load_min_distance=self.distribution_unit_loads.index(cluster) + index
-        
+
         return unit_load_min_distance
-    
+
     def generate_route(self, instance: CVRPInstance):
-        """ Generate route from a tsp solution. """
+        """Generate route from a tsp solution."""
         self.logger.info(f"Generate route.")
         solution=None
         while True:
@@ -84,6 +88,7 @@ class HCM_ONLINE:
         return CVRPSolutionVehicle(instance.origin, solution.deliveries)
 
     def run(self):
+        """Run the HCM_ONLINE algorithm to solve the CVRP problem."""
         unit_loads_packages = {unit_load: [] for unit_load in range(self.n_unit_loads)}
         unit_loads_capacity = {unit_load: 0 for unit_load in range(self.n_unit_loads)}
         routes=list()
@@ -101,7 +106,7 @@ class HCM_ONLINE:
         for unit_load, packages in unit_loads_packages.items():
             if unit_loads_capacity[unit_load] > 0:
                 routes.append(packages)
-        
+
         vehicles=list()
         self.logger.info(f"Generate Routes")
         for route in tqdm(routes):

@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 def get_data(args):
+    """Load training and testing instances from the specified paths."""
 
     train_path = Path(args.train_instances)
     train_path_dir = train_path if train_path.is_dir() else train_path.parent
@@ -23,7 +24,7 @@ def get_data(args):
     )
 
     train_instances = [CVRPInstance.from_file(f) for f in train_files[:240]]
-    
+
     test_path = Path(args.eval_instances)
     test_path_dir = test_path if test_path.is_dir() else test_path.parent
     test_files = (

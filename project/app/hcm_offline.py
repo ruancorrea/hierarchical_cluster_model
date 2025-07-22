@@ -10,22 +10,23 @@ import numpy as np
 
 class HCM_OFFLINE:
     def __init__(
-        self, 
+        self,
         data: list,
-        n_clusters: list, 
-        n_unit_loads: int, 
-        E_RATES: list, 
-        alpha_criteria: float, 
+        n_clusters: list,
+        n_unit_loads: int,
+        E_RATES: list,
+        alpha_criteria: float,
         beta_distance: float,
         test_size: float,
         seed: int
     ):
+        """Initialize the HCM_OFFLINE class with the provided parameters."""
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
         self.instance_basic_data = data[0]
         self.H=[
                 package
-                for instance in data 
+                for instance in data
                 for package in instance.deliveries
             ]
         self.n_clusters=n_clusters
@@ -38,6 +39,7 @@ class HCM_OFFLINE:
 
 
     def apply_remove_outliers(self, data: CVRPInstance, rate: float) -> tuple:
+        """Remove outliers from the dataset using Isolation Forest."""
         deliveries = np.array([delivery for delivery in data.deliveries])
         points = np.array([[delivery.point.lat, delivery.point.lng] for delivery in data.deliveries])
         if rate==0.0:
@@ -45,15 +47,15 @@ class HCM_OFFLINE:
         iso_forest = IsolationForest(contamination=rate, random_state=self.seed)
         outliers = iso_forest.fit_predict(points)
         return deliveries[outliers == 1], points[outliers == 1]
-            
+
     def apply_create_model(self, n_clusters: int, data: list):
+        """Create a clustering model using KMeans."""
         model=KMeans(n_clusters=n_clusters, init='k-means++', random_state=self.seed, n_init='auto')
         labels=model.fit_predict(data)
         return model, labels
 
     def UL_allocation(self, labels: list):
-        """ 
-        Distribution of unit loads
+        """ Distribution of unit loads
         based on the number of points in each cluster of the level one model.
         """
 
@@ -66,7 +68,7 @@ class HCM_OFFLINE:
             packages_percentage=(count / total_packages)
             allocation[cluster]=int(np.ceil(self.n_unit_loads * packages_percentage))
             total_allocation = total_allocation + allocation[cluster]
-        
+
         while total_allocation > self.n_unit_loads:
             cluster = max(allocation, key=allocation.get)
             if allocation[cluster] > 1:
@@ -81,13 +83,15 @@ class HCM_OFFLINE:
         return allocation, distribution
 
     def define_H(self) -> tuple:
-        """Particionando o conjunto de dados e criando instancia CVRP em cada partição."""
+        """Split the dataset into two parts H1 and H2.
+        H1 will be used for clustering and H2 for testing."""
         H1, H2 = train_test_split(self.H, test_size=self.test_size, random_state=self.seed)
         instance_H1 = create_CVRPInstance(instance=self.instance_basic_data, deliveries=H1, factor=1)
         instance_H2 = create_CVRPInstance(instance=self.instance_basic_data, deliveries=H2, factor=1)
         return instance_H1, instance_H2
 
     def run(self):
+        """Run the HCM_OFFLINE algorithm."""
         H1, H2 = self.define_H()
         min_distance=np.inf
         choose_clustering=None
@@ -95,7 +99,6 @@ class HCM_OFFLINE:
         choose_distribution_unit_loads=None
 
         for e in self.E_RATES:
-            
             deliveries_Hc, points_Hc = self.apply_remove_outliers(data=H1, rate=e)
             Hc = create_CVRPInstance(instance=self.instance_basic_data,deliveries=list(deliveries_Hc), factor=1)
             for c in self.n_clusters:
@@ -104,12 +107,11 @@ class HCM_OFFLINE:
                 subclusterings=defaultdict()
                 for subcluster, n_unit_loads in allocation_unit_loads.items():
                     subclusterings[subcluster], _ = self.apply_create_model(n_clusters=n_unit_loads, data=points_Hc[labels == subcluster])
-                
                 _, distance = HCM_ONLINE(
-                    n_unit_loads=self.n_unit_loads, 
-                    data=H2, 
+                    n_unit_loads=self.n_unit_loads,
+                    data=H2,
                     clustering=clustering,
-                    subclusterings=subclusterings, 
+                    subclusterings=subclusterings,
                     alpha_criteria=self.alpha_criteria,
                     beta_distance=self.beta_distance,
                     distribution_unit_loads=distribution_unit_loads
@@ -120,5 +122,5 @@ class HCM_OFFLINE:
                     choose_clustering=clustering
                     choose_subclusterings=subclusterings
                     choose_distribution_unit_loads=distribution_unit_loads
-        
+
         return choose_clustering, choose_subclusterings, choose_distribution_unit_loads
