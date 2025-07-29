@@ -36,6 +36,11 @@ The goal is to partition delivery demands into hierarchical clusters, efficientl
 pip install -r requirements.txt
 ```
 
+## Dependences
+
+- `OSRM Server`: To be able to compute distances over streets, you should download and run an OSRM Server based on OpenStreetMaps.
+- `Dataset`: containing the instances to be analyzed. Available for [download here](https://drive.google.com/file/d/1CEL_bCHERTV_dw2eBH0A8TrF8dD980kT/view?usp=sharing).
+
 ## How to Run
 
 Example execution:
